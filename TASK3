@@ -1,1 +1,26 @@
+from netmiko import ConnectHandler
 
+device = {
+        'device_type':'cisco_ios',
+        'host':'192.168.56.101',
+        'username':'cisco',
+        'password':'cisco123!',
+        'secret':'class123!'
+    }
+#Establishes SSH connection
+ssh = ConnectHandler(**device)
+   
+#Enters privileged exec mode
+ssh.enable()
+
+commands = ['router ospf 1',
+            'network 10.0.0.0 0.255.255.255 area 0',
+            'network 192.168.100.0 0.0.0.255 area 1',
+            'exit',
+            'interface loopback 0',
+            'ip address 1.2.1.2 255.255.255.255',
+            'exit']
+
+result = ssh.send_config_set(commands)
+print(result)
+ssh.exit_enable_mode()
