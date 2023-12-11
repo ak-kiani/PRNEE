@@ -1,1 +1,170 @@
 
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Dec 11 12:52:51 2023
+
+@author: pavan
+"""
+
+from netmiko import ConnectHandler
+import difflib
+#this function will run SSH connection
+
+def ssh_connection():
+    #Device parameters
+    device = {
+        'device_type':'cisco_ios',
+        'host':'192.168.56.101',
+        'username':'test',
+        'password':'test',
+        'secret':'class123!'
+    }
+    
+    
+    #Establishes SSH connection
+    ssh = ConnectHandler(**device)
+    
+    #Enters privileged exec mode
+    ssh.enable()
+    
+    #Comands that the script needs to run
+    commands = ['configure terminal',
+                'hostname R1',
+                'exit'
+                ]
+    
+    output_ssh = ssh.send_config_set(commands)
+    output_ssh = ssh.send_command('show running-config')
+
+    # Save running-config to a file
+    with open('running-config-file-ssh.txt', 'w') as run_config:
+        run_config.write(output_ssh)
+        
+    # File comparison
+    file1_path = 'running-config-file-ssh.txt'
+    file2_path = 'hardening-advice.txt'  
+
+    with open(file1_path, 'r') as file1: 
+        file1_content = file1.readlines()
+
+    with open(file2_path, 'r') as file2:
+        file2_content = file2.readlines()
+
+    differ = difflib.Differ()
+    diff = list(differ.compare(file1_content, file2_content))
+
+    for line in diff:
+        print(line)
+        
+    syslog_commands = [
+        'configure terminal',
+        'logging host 127.0.0.1 ',
+        'logging trap informational',
+        'exit'
+    ]
+    
+    with open('syslog_commands_ssh.txt','w') as syslog_file:
+            for command in syslog_commands:
+                syslog_file.write(command + '\n')
+                print("Syslog commands saved to syslog_commands_ssh.txt")
+
+    
+    #Close SSH connection
+    ssh.disconnect()
+    
+
+#This function will run telnet connection
+def telnet_connection():
+    #device parameters
+    device={
+        'device_type':'cisco_ios_telnet',
+        'host':'192.168.56.101',
+        'username':'test',
+        'password':'test',
+        'secret':'class123!'
+    }
+    
+    
+    #Establishes telnet connection
+    ssh = ConnectHandler(**device)
+    
+    #Comands that need to run
+    ssh.enable()
+    commands = ['configure terminal',
+                'hostname R2',
+                'exit'
+                ]
+    
+    #Ensures the outcome is achieved
+    ssh.send_config_set(commands)
+    
+    #these lines will ensure the expected outcome is achieved
+    output_telnet = ssh.send_config_set(commands)
+    output_telnet = ssh.send_command('show running-config')
+
+    with open('running-config-file-telnet.txt', 'w') as run_config:
+        run_config.write(output_telnet)
+        
+    # File comparison
+    file1_path = 'running-config-file-telnet.txt'
+    file2_path = 'hardening-advice.txt'  
+
+    with open(file1_path, 'r') as file1:
+        file1_content = file1.readlines()
+
+    with open(file2_path, 'r') as file2:
+        file2_content = file2.readlines()
+
+    differ = difflib.Differ()
+    diff = list(differ.compare(file1_content, file2_content))
+
+    for line in diff:
+        print(line)
+        
+    syslog_commands = [
+        'configure terminal',
+        'logging host 127.0.0.1 ',
+        'logging trap informational',
+        'exit'
+    ]
+    
+    with open('syslog_commands_telnet.txt','w') as syslog_file:
+            for command in syslog_commands:
+                syslog_file.write(command + '\n')
+                print("Syslog commands saved to syslog_commands_telnet.txt")
+    
+    #Closes telnet connection
+    ssh.disconnect()
+    
+#function will close script
+def exit_function():
+    print('Logging out of cisco router')
+    print('Goodbye')
+
+
+#the menu screenprint
+print('---Configuration Menu---')
+print('Welcome to the Cisco Router')
+print('Choose one of the following options:')
+print('l: SSH Connection')
+print('2: Telnet Connection')
+print('3: exit')
+
+while True:
+    option = input('Please select an option:')
+    
+    if option == '1':
+        ssh_connection()
+        break
+    
+    elif option == '2':
+        telnet_connection()
+        break
+    
+    elif option == '3':
+        exit_function()
+        break
+
+    else:
+        print('lnvalid option! Select one of the options displayed on the screen')
+        
