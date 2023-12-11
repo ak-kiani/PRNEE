@@ -1,11 +1,3 @@
-
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Dec 11 12:52:51 2023
-
-@author: pavan
-"""
-
 from netmiko import ConnectHandler
 import difflib
 #this function will run SSH connection
