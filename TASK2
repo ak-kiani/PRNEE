@@ -33,7 +33,7 @@ def ssh_connection():
     #Saves the running-config to local file
     with open( 'running-config-file.txt', 'w') as run_config:
         run_config.write(output)
-    
+    print(output)
     #Close SSH connection
     ssh.disconnect()
     
@@ -61,8 +61,8 @@ def telnet_connection():
                 ]
     
     #Ensures the outcome is achieved
-    ssh.send_config_set(commands)
-    
+    result = ssh.send_config_set(commands)
+    print (result)
     #Closes telnet connection
     ssh.disconnect()
     
