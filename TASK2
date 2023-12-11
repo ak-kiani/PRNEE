@@ -28,7 +28,7 @@ def ssh_connection():
     #these lines will ensure the expected outcome is achieved
     output = ssh.send_config_set(commands)
     output = ssh.send_command('show running-config')
-    
+    print(output)
     
     #Saves the running-config to local file
     with open( 'running-config-file.txt', 'w') as run_config:
