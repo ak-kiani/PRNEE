@@ -1,0 +1,118 @@
+from netmiko import ConnectHandler
+import difflib
+#this function will run SSH connection
+
+def ssh_connection():
+    #Device parameters
+    device = {
+        'device_type':'cisco_ios',
+        'host':'192.168.56.101',
+        'username':'cisco',
+        'password':'cisco123!',
+        'secret':'class123!'
+    }
+    
+    
+    #Establishes SSH connection
+    ssh = ConnectHandler(**device)
+    
+    #Enters privileged exec mode
+    ssh.enable()
+    
+    #Comands that the script needs to run
+    commands = ['configure terminal',
+                'hostname R1',
+                'no ip http server',
+                'logging on',
+                'exit'
+                ]
+    #these lines will ensure the expected outcome is achieved
+    output = ssh.send_config_set(commands)
+    output = ssh.send_command('show running-config')
+    print(output)
+    
+    #Saves the running-config to local file
+    with open( 'running-config-file.txt', 'w') as run_config:
+        run_config.write(output)
+    print(output)
+    #Close SSH connection
+    ssh.disconnect()
+    
+
+#This function will run telnet connection
+def telnet_connection():
+    #device parameters
+    device={
+        'device_type':'cisco_ios_telnet',
+        'host':'192.168.56.101',
+        'username':'cisco',
+        'password':'cisco123!',
+        'secret':'class123!'
+    }
+    
+    
+    #Establishes telnet connection
+    ssh = ConnectHandler(**device)
+    
+    #Comands that need to run
+    ssh.enable()
+    commands = ['configure terminal',
+                'hostname R2',
+                'exit'
+                ]
+    
+    #Ensures the outcome is achieved
+    result = ssh.send_config_set(commands)
+    print (result)
+    
+file1_path = '/devasc/labs/prne/running-config-file.txt'
+file2_path = '/devasc/labs/prne/hardening-advice.txt'  # Replace with the path to the second file
+
+# Read the contents of the files
+with open(file1_path, 'r') as file1:
+    file1_content = file1.readlines()
+
+with open(file2_path, 'r') as file2:
+    file2_content = file2.readlines()
+
+# Perform the diff
+differ = difflib.Differ()
+diff = list(differ.compare(file1_content, file2_content))
+
+# Print the diff
+for line in diff:
+    print(line)
+    #Closes telnet connection
+    ssh.disconnect()
+    
+#function will close script
+def exit_function():
+    print('Logging out of cisco router')
+    print('Goodbye')
+
+#the menu screenprint
+print('---Configuration Menu---')
+print('Welcome to the Cisco Router')
+print('Choose one of the following options:')
+print('l: SSH Connection')
+print('2: Telnet Connection')
+print('3: exit')
+
+while True:
+    option = input('Please select an option:')
+    
+    if option == '1':
+        ssh_connection()
+        break
+    
+    elif option == '2':
+        telnet_connection()
+        break
+    
+    elif option == '3':
+        exit_function()
+        break
+
+    else:
+        print('lnvalid option! Select one of the options displayed on the screen')
+        
