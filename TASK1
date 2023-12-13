@@ -53,8 +53,7 @@ def telnet_connection():
     
     #Comands that need to run
     ssh.enable()
-    commands = ['configure terminal',
-                'hostname R2',
+    commands = ['hostname R2',
                 'exit'
                 ]
     
