@@ -1,18 +1,4 @@
 from netmiko import ConnectHandler
-import textfsm
-
-def pretty_print(output):
-    # Load TextFSM template for 'show run'
-    template_file = "textfsm_templates/cisco_ios_show_run.template"
-    with open(template_file) as f:
-        template = textfsm.TextFSM(f)
-
-    # Parse the 'show run' output using the template
-    result = template.ParseText(output)
-
-    # Print the formatted output
-    for entry in result:
-        print("{:<20} {:<20}".format(entry[0], entry[1]))
 
 # Define the device parameters
 device = {
@@ -44,10 +30,10 @@ commands = [
 result = ssh.send_config_set(commands)
 print(result)
 
-# Send "show run" command and pretty print the output
-show_run_output = ssh.send_command('show run')
+# Send "show run" command and print the output
+show_run_output = ssh.send_command('show run', use_textfsm=True)
 print("\nShow Run Output:")
-pretty_print(show_run_output)
+print(show_run_output)
 
 # Exit privileged exec mode
 ssh.exit_enable_mode()
