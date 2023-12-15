@@ -1,14 +1,15 @@
 from netmiko import ConnectHandler
-import difflib
 #this function will run SSH connection
+import difflib
+
 
 def ssh_connection():
     #Device parameters
     device = {
         'device_type':'cisco_ios',
         'host':'192.168.56.101',
-        'username':'test',
-        'password':'test',
+        'username':'cisco',
+        'password':'cisco123!',
         'secret':'class123!'
     }
     
@@ -22,18 +23,20 @@ def ssh_connection():
     #Comands that the script needs to run
     commands = ['configure terminal',
                 'hostname R1',
+                'no ip http server',
+                'logging on',
                 'exit'
                 ]
+    #these lines will ensure the expected outcome is achieved
+    output = ssh.send_config_set(commands)
+    output = ssh.send_command('show running-config')
     
-    output_ssh = ssh.send_config_set(commands)
-    output_ssh = ssh.send_command('show running-config')
-
-    # Save running-config to a file
-    with open('running-config-file-ssh.txt', 'w') as run_config:
-        run_config.write(output_ssh)
+    #Saves the running-config to local file
+    with open( 'running-config-file.txt', 'w') as run_config:
+        run_config.write(output)
         
-    # File comparison
-    file1_path = 'running-config-file-ssh.txt'
+     # File comparison
+    file1_path = 'running-config-file.txt'
     file2_path = 'hardening-advice.txt'  
 
     with open(file1_path, 'r') as file1: 
@@ -59,8 +62,8 @@ def ssh_connection():
             for command in syslog_commands:
                 syslog_file.write(command + '\n')
                 print("Syslog commands saved to syslog_commands_ssh.txt")
-
-    
+                
+                
     #Close SSH connection
     ssh.disconnect()
     
@@ -71,8 +74,8 @@ def telnet_connection():
     device={
         'device_type':'cisco_ios_telnet',
         'host':'192.168.56.101',
-        'username':'test',
-        'password':'test',
+        'username':'cisco',
+        'password':'cisco123!',
         'secret':'class123!'
     }
     
@@ -88,20 +91,21 @@ def telnet_connection():
                 ]
     
     #Ensures the outcome is achieved
-    ssh.send_config_set(commands)
+    result = ssh.send_config_set(commands)
+    print (result)
     
-    #these lines will ensure the expected outcome is achieved
-    output_telnet = ssh.send_config_set(commands)
-    output_telnet = ssh.send_command('show running-config')
+    output = ssh.send_config_set(commands)
+    output = ssh.send_command('show running-config')
 
-    with open('running-config-file-telnet.txt', 'w') as run_config:
-        run_config.write(output_telnet)
+    # Save running-config to a file
+    with open('running-config-file-ssh.txt', 'w') as run_config:
+        run_config.write(output)
         
     # File comparison
-    file1_path = 'running-config-file-telnet.txt'
+    file1_path = 'running-config-file.txt'
     file2_path = 'hardening-advice.txt'  
 
-    with open(file1_path, 'r') as file1:
+    with open(file1_path, 'r') as file1: 
         file1_content = file1.readlines()
 
     with open(file2_path, 'r') as file2:
@@ -120,11 +124,10 @@ def telnet_connection():
         'exit'
     ]
     
-    with open('syslog_commands_telnet.txt','w') as syslog_file:
+    with open('syslog_commands_ssh.txt','w') as syslog_file:
             for command in syslog_commands:
                 syslog_file.write(command + '\n')
-                print("Syslog commands saved to syslog_commands_telnet.txt")
-    
+                print("Syslog commands saved to syslog_commands_ssh.txt")
     #Closes telnet connection
     ssh.disconnect()
     
@@ -132,7 +135,6 @@ def telnet_connection():
 def exit_function():
     print('Logging out of cisco router')
     print('Goodbye')
-
 
 #the menu screenprint
 print('---Configuration Menu---')
@@ -159,4 +161,3 @@ while True:
 
     else:
         print('lnvalid option! Select one of the options displayed on the screen')
-        
